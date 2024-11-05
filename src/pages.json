@@ -1,0 +1,50 @@
+{
+  "globalStyle": {
+    "navigationStyle": "default",
+    "navigationBarTitleText": "展厅中控系统",
+    "navigationBarBackgroundColor": "#08316B",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FFFFFF"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
+      "^uv-(.*)": "@climblee/uv-ui/components/uv-$1/uv-$1.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "系统设置"
+      },
+      "needLogin": true
+    },
+    {
+      "path": "pages/login/index",
+      "type": "page",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "type": "page",
+      "style": {
+        "navigationStyle": "custom"
+      },
+      "needLogin": true
+    },
+    {
+      "path": "pages/webview/index",
+      "type": "page",
+      "style": {
+        "navigationStyle": "custom"
+      },
+      "needLogin": true
+    }
+  ],
+  "subPackages": []
+}

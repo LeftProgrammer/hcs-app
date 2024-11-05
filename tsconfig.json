@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "noImplicitThis": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "outDir": "dist",
+    "lib": ["esnext", "dom"],
+    "types": [
+      "@dcloudio/types",
+      "@types/wechat-miniprogram",
+      "@uni-helper/uni-ui-types",
+      "@ttou/uv-typings/shim",
+      "@ttou/uv-typings/v2",
+      "./components.d.ts",
+      "./global.d.ts"
+    ]
+  },
+  "vueCompilerOptions": {
+    "target": 3,
+    "nativeTags": ["block", "template", "component", "slot"]
+  },
+  "exclude": ["node_modules"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.jsx",
+    "src/**/*.vue",
+    "src/**/*.json"
+  ]
+}

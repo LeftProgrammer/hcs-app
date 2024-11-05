@@ -1,0 +1,6 @@
+@import '@unocss-applet/reset/uni-app/tailwind-compat.css';
+@import '@unocss-applet/reset/uni-app/button-after.css';
+
+button {
+  background-color: transparent;
+}
