@@ -1,142 +1,161 @@
 <route lang="json5">
 {
   style: {
-    navigationStyle: 'custom',
+    navigationBarTitleText: '系统设置',
   },
   needLogin: true,
 }
 </route>
 
 <template>
-  <view class="h-full flex flex-col bg-#F5F5F5 relative">
-    <view
-      class="h-56 rounded-bl-12 rounded-br-12 absolute top-0 left-0 right-0 bg-gradient-to-b from-#267af8 to-#3254ff"
-    ></view>
-
-    <view
-      class="absolute top-0 left-2.5 right-2.5 bottom-30 z-1 flex flex-col text-3.5 overflow-auto"
-    >
-      <view class="flex flex-col text-white px-3 mt-7">
-        <view class="h-14 flex items-center">
-          <image src="@/static/images/user-icon-1.png" class="w-14 h-14 rounded-full mr-4" />
-          <view class="h-full flex flex-col justify-between">
-            <view class="text-4">{{ user.name }}</view>
-            <uv-tags :text="user.department" type="warning" shape="circle"></uv-tags>
+  <view class="page h-full bg-#000617 p-8">
+    <view class="w-112 h-full flex flex-col text-4">
+      <view class="width-full flex flex-col px-12 pt-6 c-#ffffff bg-#082665 mb-3">
+        <view class="flex justify-between items-center pb-5 mb-4 border-b-1 border-#2E5EBF">
+          <view class="flex items-center">
+            <view class="mr-3 label-icon"></view>
+            <view class="">账户</view>
+          </view>
+          <view class="flex-1 flex flex-justify-end items-center">{{ user.nickname }}</view>
+        </view>
+        <view class="flex justify-between items-center pb-5 mb-4 border-b-1 border-#2E5EBF">
+          <view class="flex items-center">
+            <view class="mr-3 label-icon"></view>
+            <view class="">修改密码</view>
+          </view>
+          <view class="flex-1 flex flex-justify-end items-center" @click="openPasswordPopup">
+            <uv-icon name="arrow-right" color="#ffffff" size="16"></uv-icon>
           </view>
         </view>
-        <view class="flex justify-between mt-5">
+        <view class="flex justify-between items-center pb-5">
           <view class="flex items-center">
-            <uv-icon name="account" color="#fff" size="16" class="mr-2"></uv-icon>
-            <text>账号: {{ user.code }}</text>
+            <view class="mr-3 label-icon"></view>
+            <view class="">版本号</view>
           </view>
-          <view class="flex items-center">
-            <uv-icon name="phone" color="#fff" size="16" class="mr-2"></uv-icon>
-            <text>手机号: {{ user.phone }}</text>
+          <view class="flex-1 flex flex-justify-end items-center c-#2289FF" @click="checkForUpdate">
+            {{ appVersion.current }}
           </view>
         </view>
       </view>
 
-      <!-- App系统信息展示 -->
-      <view class="mt-3 p-4 bg-white rounded-lg shadow-md">
-        <view class="flex justify-between items-center mb-3">
+      <view class="width-full flex flex-col px-12 pt-6 c-#ffffff bg-#082665 mb-5">
+        <view class="flex justify-between items-center pb-5 mb-4 border-b-1 border-#2E5EBF">
           <view class="flex items-center">
-            <view class="h-3 w-0.75 bg-#3254FF mr-1.5"></view>
-            <view class="text-4 c-#4E5969 font-bold">系统信息</view>
+            <view class="mr-3 label-icon"></view>
+            <view class="">配置地址</view>
           </view>
+          <view class="flex-1 flex flex-justify-end items-center">{{ serviceAddress }}</view>
         </view>
-        <view class="mt-2.5">
-          <view class="flex justify-between items-center">
-            <view class="c-#86909C">当前版本号: {{ appVersion.current }}</view>
-            <view class="c-#4E5969" v-show="appVersion.current === appVersion.latest">
-              已是最新版本
-            </view>
+        <view class="flex justify-between items-center pb-5">
+          <view class="flex items-center">
+            <view class="mr-3 label-icon"></view>
+            <view class="">设计方案</view>
           </view>
-          <view
-            class="flex justify-between items-center mt-3"
-            v-show="appVersion.current !== appVersion.latest"
-          >
-            <view class="text-4 c-#1D2129 font-bold">最新版本: {{ appVersion.latest }}</view>
-            <view @click="checkForUpdate" class="flex items-center">
-              <image class="update w-3.5 h-3.5 mr-1" src="@/static/images/update-icon.png" />
-              <text class="font-bold c-#1690ff">开始升级</text>
-            </view>
+          <view class="flex-1 flex flex-justify-end items-center" @click="openProgrammeModal">
+            <view class="mr-3">{{ programmeObj.programme }}</view>
+            <uv-icon name="arrow-right" color="#ffffff" size="16"></uv-icon>
           </view>
         </view>
       </view>
-    </view>
-    <!-- 底部功能按钮 -->
-    <view class="absolute bottom-2.5 left-2.5 right-2.5 z-10">
-      <uv-button class="w-full mb-3" type="error" @click="clearAllCache">清除缓存</uv-button>
-      <uv-button class="w-full" type="primary" @click="handleLogout">退出登录</uv-button>
 
       <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button>
+      <uv-button class="w-full" type="primary" @click="handleLogout">退出登录</uv-button>
     </view>
 
-    <!-- 修改密码弹窗 -->
-    <uv-popup
-      class="password-popup"
+    <!-- 底部功能按钮 -->
+    <!-- <view class=""> -->
+    <!-- <uv-button class="w-full mb-3" type="error" @click="clearAllCache">清除缓存</uv-button> -->
+
+    <!-- <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button> -->
+    <!-- </view> -->
+
+    <programmeModal
+      ref="programmeFormModal"
+      modalTitle="选择方案"
+      @confirm-success="handleConfirmSuccess"
+    />
+
+    <uv-modal
+      class="modal"
       ref="popupRef"
-      mode="center"
-      :round="10"
-      closeable
-      @close="handleClose"
+      :width="600"
+      :showCancelButton="true"
+      :asyncClose="true"
+      @confirm="handleSure"
+      @cancel="handleClose"
+      cancelColor="#ffffff"
     >
-      <view class="popup-title mt-2.5 text-center text-base">修改密码</view>
-      <uv-form
-        labelPosition="left"
-        :model="passwordModel"
-        :rules="passwordRules"
-        ref="passwordForm"
-        labelWidth="90"
-        class="password-form px-8.75 pb-13.75 w-87.5"
-      >
-        <uv-form-item label="原始密码" prop="oldpassword" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请输入原始密码"
-            v-model="passwordModel.oldpassword"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-        <uv-form-item label="新密码" prop="password" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请输入新密码"
-            v-model="passwordModel.password"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-        <uv-form-item label="确认密码" prop="confirmpassword" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请再次输入新密码"
-            v-model="passwordModel.confirmpassword"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-      </uv-form>
-      <uv-button class="sure-btn absolute bottom-0 w-full" @click="handleSure" type="primary">
-        确定
-      </uv-button>
-    </uv-popup>
+      <view class="modal-content">
+        <view class="modal-title">修改密码</view>
+        <uv-form
+          labelPosition="left"
+          :model="passwordModel"
+          :rules="passwordRules"
+          ref="passwordForm"
+          labelWidth="106"
+          class="w-100 h-48"
+        >
+          <uv-form-item prop="oldpassword">
+            <template v-slot:label>
+              <view class="flex flex-justify-start flex-items-center mr-4">
+                <view class="label-icon"></view>
+                <view class="label-text">原始密码</view>
+              </view>
+            </template>
+            <uv-input
+              type="password"
+              placeholder="请输入原始密码"
+              v-model="passwordModel.oldpassword"
+              border="none"
+              clearable
+            ></uv-input>
+          </uv-form-item>
+          <uv-form-item prop="password">
+            <template v-slot:label>
+              <view class="flex flex-justify-start flex-items-center mr-4">
+                <view class="label-icon"></view>
+                <view class="label-text">新密码</view>
+              </view>
+            </template>
+            <uv-input
+              type="password"
+              placeholder="请输入新密码"
+              v-model="passwordModel.password"
+              border="none"
+              clearable
+            ></uv-input>
+          </uv-form-item>
+          <uv-form-item prop="confirmpassword">
+            <template v-slot:label>
+              <view class="flex flex-justify-start flex-items-center mr-4">
+                <view class="label-icon"></view>
+                <view class="label-text">确认密码</view>
+              </view>
+            </template>
+            <uv-input
+              type="password"
+              placeholder="请再次输入新密码"
+              v-model="passwordModel.confirmpassword"
+              border="none"
+              clearable
+            ></uv-input>
+          </uv-form-item>
+        </uv-form>
+      </view>
+    </uv-modal>
   </view>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/store'
 import { useToast, useDialog } from '@/utils/modals'
+import programmeModal from '@/components/programmeModal/index.vue'
 
 const userStore = useUserStore()
+
 const user = ref({
-  avatar: '',
-  code: '',
-  name: '',
-  department: '',
-  phone: '',
+  nickname: '',
 })
 
 const appVersion = ref({
@@ -144,7 +163,12 @@ const appVersion = ref({
   latest: '1.0.0',
 })
 
+const serviceAddress = uni.getStorageSync('serviceAddress') || ''
+const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
+const programmeFormModal = ref(null)
+
 const popupRef = ref(null)
+const passwordForm = ref(null)
 const passwordModel = ref({
   oldpassword: '',
   password: '',
@@ -188,25 +212,45 @@ onMounted(() => {
   const userInfo = userStore.userInfo
   console.log('userInfo', userInfo)
   user.value = {
-    avatar: userInfo.avatar,
-    code: userInfo.code,
-    name: userInfo.name,
-    department: userInfo.department,
-    phone: userInfo.phone,
+    nickname: userInfo.nickname,
   }
 })
 
+const openProgrammeModal = () => {
+  programmeFormModal.value.openModal()
+}
+
+const handleConfirmSuccess = (formData) => {
+  console.log('用户已确认，数据:', formData)
+  // 在这里执行其他操作，例如根据选择的方案更新页面或发送请求
+  uni.navigateTo({
+    url: '/pages/webview/index', // 跳转到H5页面
+    success: () => {
+      console.log('已跳转到H5页面')
+    },
+  })
+}
+
 const completeSettings = () => {
-  // const settingData = JSON.parse(uni.getStorageSync('settingData') || '{}')
-  // if (!settingData.serviceAddress || !settingData.programme) {
-  //   useToast('请先设置服务地址和方案')
-  //   this.openSettingModal()
-  //   return
-  // }
+  if (!serviceAddress) {
+    useToast('请先设置服务地址')
+    uni.navigateTo({
+      url: '/pages/login/index', // 跳转到H5页面
+      success: () => {
+        console.log('已跳转到H5页面')
+      },
+    })
+    return
+  }
+  if (!programmeObj.programme) {
+    useToast('请先设置方案')
+    openProgrammeModal()
+    return
+  }
 
   // 返回上一页
   uni.navigateTo({
-    url: '/pages/webview/index?flag=1', // 跳转到H5页面
+    url: '/pages/webview/index', // 跳转到H5页面
     success: () => {
       console.log('已跳转到H5页面')
     },
@@ -263,7 +307,7 @@ const handleClose = () => {
 }
 
 const handleSure = () => {
-  popupRef.value
+  passwordForm.value
     .validate()
     .then(async () => {
       passwordModel.value.username = user.value.username
@@ -287,3 +331,21 @@ const handleSure = () => {
     })
 }
 </script>
+<style lang="scss" scoped>
+.page {
+  width: 100%;
+  height: 100%;
+  background-image: url('@/static/login/page-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.label-icon {
+  width: 8px;
+  height: 8px;
+  background-image: url('@/static/common/label-icon.png');
+}
+</style>

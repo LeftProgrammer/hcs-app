@@ -33,7 +33,7 @@
       "path": "pages/mine/index",
       "type": "page",
       "style": {
-        "navigationStyle": "custom"
+        "navigationBarTitleText": "系统设置"
       },
       "needLogin": true
     },

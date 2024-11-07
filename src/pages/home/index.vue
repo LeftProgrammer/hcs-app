@@ -58,35 +58,9 @@
         </view>
       </view>
 
+      <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button>
       <uv-button class="w-full" type="primary" @click="handleLogout">退出登录</uv-button>
     </view>
-    <!-- App系统信息展示 -->
-    <!-- <view class="mt-3 p-4 bg-white rounded-lg shadow-md">
-        <view class="flex justify-between items-center mb-3">
-          <view class="flex items-center">
-            <view class="h-3 w-0.75 bg-#3254FF mr-1.5"></view>
-            <view class="text-4 c-#4E5969 font-bold">系统信息</view>
-          </view>
-        </view>
-        <view class="mt-2.5">
-          <view class="flex justify-between items-center">
-            <view class="c-#86909C">当前版本号: {{ appVersion.current }}</view>
-            <view class="c-#4E5969" v-show="appVersion.current === appVersion.latest">
-              已是最新版本
-            </view>
-          </view>
-          <view
-            class="flex justify-between items-center mt-3"
-            v-show="appVersion.current !== appVersion.latest"
-          >
-            <view class="text-4 c-#1D2129 font-bold">最新版本: {{ appVersion.latest }}</view>
-            <view @click="checkForUpdate" class="flex items-center">
-              <image class="update w-3.5 h-3.5 mr-1" src="@/static/images/update-icon.png" />
-              <text class="font-bold c-#1690ff">开始升级</text>
-            </view>
-          </view>
-        </view>
-      </view> -->
 
     <!-- 底部功能按钮 -->
     <!-- <view class=""> -->
@@ -168,58 +142,7 @@
           </uv-form-item>
         </uv-form>
       </view>
-      <!-- <view class="popup-title mt-2.5 text-center text-base">修改密码</view> -->
     </uv-modal>
-    <!-- 修改密码弹窗 -->
-    <!-- <uv-popup
-      class="password-popup"
-      ref="popupRef"
-      mode="center"
-      :round="10"
-      closeable
-      @close="handleClose"
-    >
-      <view class="popup-title mt-2.5 text-center text-base">修改密码</view>
-      <uv-form
-        labelPosition="left"
-        :model="passwordModel"
-        :rules="passwordRules"
-        ref="passwordForm"
-        labelWidth="90"
-        class="password-form px-8.75 pb-13.75 w-87.5"
-      >
-        <uv-form-item label="原始密码" prop="oldpassword" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请输入原始密码"
-            v-model="passwordModel.oldpassword"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-        <uv-form-item label="新密码" prop="password" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请输入新密码"
-            v-model="passwordModel.password"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-        <uv-form-item label="确认密码" prop="confirmpassword" borderBottom>
-          <uv-input
-            type="password"
-            placeholder="请再次输入新密码"
-            v-model="passwordModel.confirmpassword"
-            border="none"
-            clearable
-          ></uv-input>
-        </uv-form-item>
-      </uv-form>
-      <uv-button class="sure-btn absolute bottom-0 w-full" @click="handleSure" type="primary">
-        确定
-      </uv-button>
-    </uv-popup> -->
   </view>
 </template>
 
@@ -300,6 +223,32 @@ const openProgrammeModal = () => {
 const handleConfirmSuccess = (formData) => {
   console.log('用户已确认，数据:', formData)
   // 在这里执行其他操作，例如根据选择的方案更新页面或发送请求
+  uni.navigateTo({
+    url: '/pages/webview/index', // 跳转到H5页面
+    success: () => {
+      console.log('已跳转到H5页面')
+    },
+  })
+}
+
+const completeSettings = () => {
+  if (!serviceAddress) {
+    useToast('请先设置服务地址')
+    uni.navigateTo({
+      url: '/pages/login/index', // 跳转到H5页面
+      success: () => {
+        console.log('已跳转到H5页面')
+      },
+    })
+    return
+  }
+  if (!programmeObj.programme) {
+    useToast('请先设置方案')
+    openProgrammeModal()
+    return
+  }
+
+  // 返回上一页
   uni.navigateTo({
     url: '/pages/webview/index', // 跳转到H5页面
     success: () => {
