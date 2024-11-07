@@ -19,17 +19,18 @@
 import { ref, onMounted } from 'vue'
 
 const isLoading = ref(false)
-// const settingData = JSON.parse(uni.getStorageSync('settingData') || '{}')
-const settingData = {
-  serviceAddress: 'http://192.168.70.68',
-  fileName: '1727250800901',
-}
+const serviceAddress = uni.getStorageSync('settingData') || ''
+const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
+// const settingData = {
+//   serviceAddress: 'http://192.168.70.68',
+//   fileName: '1727250800901',
+// }
 const src = ref('')
-const fileName = ref(settingData.fileName || 'page')
+const fileName = programmeObj.fileName || 'page'
 
 // 页面加载时设置 `src`
 onMounted(() => {
-  src.value = `${settingData.serviceAddress}/hcs-design-h5/${fileName.value}/index.html`
+  src.value = `${serviceAddress}/hcs-design-h5/${fileName}/index.html`
   console.error('this.src===>', src.value)
 })
 
@@ -55,9 +56,9 @@ const onMessageFromH5 = (event) => {
   } else if (action === 'openOtherPage') {
     isLoading.value = true // 开始加载动画
     if (params) {
-      src.value = `${settingData.serviceAddress}/hcs-design-h5/${fileName.value}/index.html?${params}`
+      src.value = `${serviceAddress}/hcs-design-h5/${fileName}/index.html?${params}`
     } else {
-      src.value = `${settingData.serviceAddress}/hcs-design-h5/${fileName.value}/index.html`
+      src.value = `${serviceAddress}/hcs-design-h5/${fileName}/index.html`
     }
     setTimeout(() => {
       isLoading.value = false

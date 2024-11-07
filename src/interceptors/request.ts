@@ -11,11 +11,21 @@ export type CustomRequestOptions = UniApp.RequestOptions & {
 } & IUniUploadFileOptions // 添加uni.uploadFile参数类型
 
 // 请求基准地址
-const baseUrl = import.meta.env.VITE_SERVER_BASEURL
+
+const getDynamicRequestURL = () => {
+  const storedServiceAddress = uni.getStorageSync('serviceAddress') // 从本地存储获取 serviceAddress
+  console.error('getDynamicRequestURL', storedServiceAddress)
+  return (
+    `${storedServiceAddress}${import.meta.env.VITE_BASE_URL}` ||
+    `${import.meta.env.VITE_SERVER_BASEURL}${import.meta.env.VITE_BASE_URL}`
+  )
+}
+
 // 拦截器配置
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: CustomRequestOptions) {
+    const baseUrl = getDynamicRequestURL()
     // 接口请求支持通过 query 参数配置 queryString
     if (options.query) {
       const queryStr = qs.stringify(options.query)
@@ -45,14 +55,15 @@ const httpInterceptor = {
     options.timeout = 10000 // 10s
     // 2. （可选）添加小程序端请求头标识
     options.header = {
-      platform, // 可选，与 uniapp 定义的平台一致，告诉后台来源
+      // platform, // TOTD: 涉及CORS（跨域资源共享），暂时先注释掉。  可选，与 uniapp 定义的平台一致，告诉后台来源
       ...options.header,
     }
     // 3. 添加 token 请求头标识
     const userStore = useUserStore()
     const token = userStore.token
     if (token) {
-      options.header['X-Access-Token'] = token
+      // options.header['X-Access-Token'] = token
+      options.header.Authorization = token
     }
     console.log('完整参数-invoke', options)
   },

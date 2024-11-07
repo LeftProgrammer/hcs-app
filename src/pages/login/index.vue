@@ -6,100 +6,114 @@
 }
 </route>
 <template>
-  <view class="page h-full bg-f8fcfd overflow-hidden">
-    <view class="banner"></view>
+  <view class="page h-full bg-#000617">
     <view class="main">
-      <view class="header">用户登录</view>
-      <uv-form ref="formRef" :model="form" :rules="rules" labelPosition="top">
+      <uv-form ref="formRef" :model="form" :rules="rules" labelWidth="60">
         <uv-form-item prop="username">
           <template v-slot:label>
-            <view class="flex flex-justify-start flex-items-center">
-              <uv-icon name="account" size="24" color="#2979ff" class="mr-1"></uv-icon>
-              <view class="label">账号</view>
-            </view>
+            <uv-icon name="account" size="24" color="#ffffff" class="mr-4"></uv-icon>
           </template>
-          <uv-input v-model="form.username" placeholder="请输入账号" border="bottom" />
+          <uv-input v-model="form.username" placeholder="请输入账号" border="none"></uv-input>
         </uv-form-item>
         <uv-form-item prop="password">
           <template v-slot:label>
-            <view class="flex flex-justify-start flex-items-center">
-              <uv-icon name="lock" size="24" color="#2979ff" class="mr-1"></uv-icon>
-              <view class="label">密码</view>
-            </view>
+            <uv-icon name="lock" size="24" color="#ffffff" class="mr-4"></uv-icon>
           </template>
           <uv-input
             v-model="form.password"
-            clearable
             :password="showPassword"
             placeholder="请输入密码"
-            border="bottom"
+            border="none"
           >
             <template v-slot:suffix>
               <uv-icon
                 :name="showPassword ? 'eye-fill' : 'eye'"
                 size="24"
+                color="#ffffff"
                 :class="[!showPassword ? 'uni-eye-active' : '']"
                 @click="showPassword = !showPassword"
               ></uv-icon>
             </template>
           </uv-input>
         </uv-form-item>
-        <uv-form-item prop="captcha">
-          <template v-slot:label>
-            <view class="flex flex-justify-start flex-items-center">
-              <uv-icon name="more-circle" size="24" color="#2979ff" class="mr-1"></uv-icon>
-              <view class="label">验证码</view>
-            </view>
-          </template>
-          <jh-captcha
-            ref="captchaRef"
-            class="w-full"
-            v-model="form.captcha"
-            @update:timestamp="handleTimestampUpdate"
-          />
-        </uv-form-item>
-        <uv-form-item>
-          <uv-checkbox-group v-model="rememberMe" class="flex justify-end">
+        <view class="flex flex-justify-between flex-items-center text-#ffffff text-4">
+          <uv-checkbox-group v-model="rememberMe" labelColor="#ffffff">
             <uv-checkbox label="记住密码" :name="true"></uv-checkbox>
           </uv-checkbox-group>
-        </uv-form-item>
-        <uv-button
-          type="primary"
-          text="登录"
-          customStyle="margin-top: 10px"
-          @click="handleLogin"
-        ></uv-button>
+          <view class="flex flex-items-center" @click="openSettingModal">
+            配置地址
+            <uv-icon name="arrow-right" size="16" color="#ffffff" class="ml-1"></uv-icon>
+          </view>
+        </view>
       </uv-form>
+      <uv-button type="primary" text="登录" @click="handleLogin" class="login-btn"></uv-button>
     </view>
-    <view
-      class="footer absolute inset-x-0 bottom-0 text-center mb-4 color-#C9CDD4 font-size-3 flex justify-center items-center"
+
+    <uv-modal
+      class="modal"
+      ref="settingModal"
+      :width="600"
+      :showCancelButton="true"
+      :asyncClose="true"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+      cancelColor="#ffffff"
     >
-      <view class="line-left"></view>
-      <view class="text">当前版本： {{ version }}</view>
-      <view class="line-right"></view>
-    </view>
-    @/service/home
+      <view class="modal-content">
+        <view class="modal-title">配置地址</view>
+        <uv-form
+          labelWidth="106"
+          labelPosition="left"
+          :model="settingFormData"
+          :rules="settingRules"
+          ref="settingForm"
+          class="w-100 h-20"
+        >
+          <uv-form-item prop="serviceAddress">
+            <template v-slot:label>
+              <view class="flex flex-justify-start flex-items-center mr-4">
+                <view class="label-icon"></view>
+                <view class="label-text">服务地址</view>
+              </view>
+            </template>
+            <uv-input
+              v-model="settingFormData.serviceAddress"
+              clearable
+              placeholder="请填写服务地址"
+              border="none"
+            ></uv-input>
+          </uv-form-item>
+        </uv-form>
+      </view>
+    </uv-modal>
+
+    <programmeModal
+      ref="programmeFormModal"
+      title="选择方案"
+      @confirm-success="handleConfirmSuccess"
+    />
   </view>
 </template>
 
-<script lang="js" setup>
+<script setup>
 import { ref } from 'vue'
-import { version } from '../../../package.json'
-import { login, queryByUsername } from '@/service/home/index'
+import { login } from '@/service/home/index'
 import { useUserStore } from '@/store'
 import { useToast } from '@/utils/modals'
 import { currRoute } from '@/utils/index'
-import JhCaptcha from '@/components/jh-captcha.vue'
+import { cloneDeep } from 'lodash-es'
+import CryptoJS from 'crypto-js'
+import programmeModal from '@/components/programmeModal/index.vue'
 
 const userStore = useUserStore()
+const programmeFormModal = ref(null)
+const settingModal = ref(null)
+const settingForm = ref(null)
 const formRef = ref(null)
-const captchaRef = ref(null)
-const timestamp = ref(null)
 const showPassword = ref(true)
 const form = ref({
   username: '',
   password: '',
-  captcha: '',
 })
 const rememberMe = ref([])
 const rules = ref({
@@ -120,74 +134,68 @@ const rules = ref({
       trigger: ['blur', 'change'],
     },
   ],
-  captcha: [
-    {
-      validator: (rule, value, callback) => {
-        console.error('value', value)
-        if (!value) {
-          callback(new Error('请输入验证码'))
-        } else if (!captchaRef.value.validateCaptcha()) {
-          callback(new Error('验证码错误'))
-        } else {
-          callback()
-        }
-      },
-      trigger: ['blur', 'change'],
-    },
-  ],
 })
 
-// 加密密码
-const encryptPassword = (password) => {
-  return btoa(password) // 使用 Base64 编码进行简单加密
-}
+// // 加密密码
+// const encryptPassword = (password) => {
+//   return btoa(password) // 使用 Base64 编码进行简单加密
+// }
 
-// 解密密码
-const decryptPassword = (encryptedPassword) => {
-  try {
-    return atob(encryptedPassword) // 使用 Base64 解码进行解密
-  } catch (e) {
-    return ''
-  }
+// // 解密密码
+// const decryptPassword = (encryptedPassword) => {
+//   try {
+//     return atob(encryptedPassword) // 使用 Base64 解码进行解密
+//   } catch (e) {
+//     return ''
+//   }
+// }
+
+const handleConfirmSuccess = (formData) => {
+  console.log('用户已确认，数据:', formData)
+  // 在这里执行其他操作，例如根据选择的方案更新页面或发送请求
+  const { query } = currRoute()
+  useToast('登录成功')
+  const redirectUrl = query.redirect || '/pages/home/index'
+  uni.reLaunch({
+    url: redirectUrl,
+  })
 }
 
 const handleLogin = async () => {
+  const serviceAddress = uni.getStorageSync('serviceAddress') || ''
+  if (!serviceAddress) {
+    useToast('请先配置服务地址')
+
+    // 弹出设置服务地址的弹窗
+    openSettingModal()
+    return
+  }
+
   const valid = await formRef.value.validate()
   if (valid !== true) {
     return
   }
 
-  const params = {
-    username: form.value.username,
-    password: form.value.password,
-    captcha: form.value.captcha,
-    checkKey: timestamp.value,
-  }
-  const { code, message, result } = await login(params)
+  const params = cloneDeep(form.value)
+  params.password = CryptoJS.MD5(form.value.password).toString()
+
+  const { code, message, data } = await login(params)
 
   if (code === 200) {
-    let userInfo = result.userInfo || {}
-    userStore.setToken(result.token)
-    const {
-      code: companyCode,
-      message: companyMessage,
-      result: companyResult,
-    } = await queryByUsername({})
+    console.log('登录成功', data)
+    const userInfo = data || {}
+    userStore.setToken(data.token)
+    userStore.setUserInfo(userInfo)
+    handleSuccess()
 
-    if (companyCode === 200) {
-      userInfo = { ...userInfo, ...companyResult }
-      userStore.setUserInfo(userInfo)
+    const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
+    if (!programmeObj.programme) {
+      useToast('请选择方案')
 
-      handleSuccess()
-
-      const { query } = currRoute()
-      useToast('登录成功')
-      const redirectUrl = query.redirect || '/pages/home/index'
-      uni.reLaunch({
-        url: redirectUrl,
-      })
+      // 弹出设置服务地址的弹窗
+      programmeFormModal.value.openModal()
     } else {
-      useToast(companyMessage)
+      handleConfirmSuccess()
     }
   } else {
     useToast(message)
@@ -196,21 +204,61 @@ const handleLogin = async () => {
 
 const handleSuccess = () => {
   if (rememberMe.value.length > 0) {
-    userStore.setEncryptedPassword(encryptPassword(form.value.password))
+    userStore.setEncryptedPassword(form.value.password)
   } else {
     userStore.clearEncryptedPassword()
   }
 }
 
-const handleTimestampUpdate = (newTimestamp) => {
-  timestamp.value = newTimestamp
+const settingFormData = ref({
+  serviceAddress: uni.getStorageSync('serviceAddress') || '',
+})
+const settingRules = ref({
+  serviceAddress: {
+    type: 'string',
+    required: true,
+    trigger: ['blur', 'change'],
+    validator: (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请填写服务地址'))
+      }
+      // else if (!isUrl(value)) {
+      //   callback(new Error('请填写正确的服务地址（如：http://127.0.0.1）'))
+      // }
+      else {
+        callback()
+      }
+    },
+  },
+})
+
+const openSettingModal = () => {
+  settingModal.value.open()
+}
+
+const onCancel = () => {
+  settingModal.value.close()
+}
+
+const onConfirm = () => {
+  settingForm.value
+    .validate()
+    .then(() => {
+      uni.setStorageSync('serviceAddress', settingFormData.value.serviceAddress)
+      useToast('设置成功')
+      settingModal.value.close()
+    })
+    .catch((errors) => {
+      console.error('errors====>', errors)
+      settingModal.value.closeLoading()
+    })
 }
 
 // 页面加载时读取缓存的账号密码
 onMounted(() => {
   if (userStore.userInfo.username && userStore.encryptedPassword) {
     form.value.username = userStore.userInfo.username
-    form.value.password = decryptPassword(userStore.encryptedPassword)
+    form.value.password = userStore.userInfo.password
     rememberMe.value.push(true)
   }
 })
@@ -218,73 +266,37 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page {
-  position: relative;
+  width: 100%;
+  height: 100%;
+  background-image: url('@/static/login/page-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.banner {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 318px;
-  background-image: url('@/static/login/banner.png');
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 658px;
+  height: 460px;
+  background-image: url('@/static/login/main-bg.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
-}
-.main {
-  min-height: 468px;
-  position: absolute;
-  top: 217px;
-  right: 28px;
-  // bottom: 167px;
-  left: 28px;
-  z-index: 10;
-  padding: 30px 28px;
-  background: #fff;
-  border-radius: 18px 18px 18px 18px;
-  box-shadow: 0px 3px 10px 0px rgba(172, 196, 219, 0.3);
-}
-.header {
-  height: 20px;
-  margin-bottom: 34px;
-  font-size: 18px;
-  line-height: 20px;
-  color: #1d2129;
-  text-align: left;
-  font-weight: bold;
-}
-.label {
-  font-size: 16px;
-}
-
-.captcha-image {
-  width: 100px;
-  height: 36px;
-  img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.footer {
-  .line-left,
-  .line-right {
-    width: 63px;
-    height: 1px;
-    border: 1px solid;
-    opacity: 0.6;
-  }
-  .line-left {
-    border-image: linear-gradient(-90deg, rgba(201, 205, 212, 1), rgba(247, 247, 247, 0)) 1 1;
-  }
-  .line-right {
-    border-image: linear-gradient(90deg, rgba(201, 205, 212, 1), rgba(247, 247, 247, 0)) 1 1;
-  }
-  .text {
-    font-size: 12px;
-    color: #c9cdd4;
-    line-height: 20px;
-    margin: 0 8px;
+  padding: 120px 100px 88px 100px;
+  ::v-deep .uv-form-item__body {
+    border: 1px solid #ffffff;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    .uv-form-item__body__left__content__label {
+      color: #ffffff;
+    }
+    .uni-input-input {
+      color: #ffffff;
+    }
   }
 }
 </style>

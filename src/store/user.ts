@@ -4,12 +4,9 @@ import { ref, computed } from 'vue'
 // 初始状态
 const initState = {
   id: '',
-  avatar: '',
-  username: '',
-  name: '',
-  departmentId: '',
-  department: '',
-  code: '',
+  nickname: '',
+  role: '',
+  token: '',
 }
 
 export const useUserStore = defineStore(

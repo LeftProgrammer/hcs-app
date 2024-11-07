@@ -1,5 +1,5 @@
 {
-  "name": "haifeng-app",
+  "name": "hcs-pad",
   "type": "commonjs",
   "version": "1.0.0",
   "description": "展厅中控系统",
@@ -81,6 +81,7 @@
     "@dcloudio/uni-mp-xhs": "3.0.0-4010420240430001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4010420240430001",
     "@dcloudio/uni-ui": "^1.4.28",
+    "crypto-js": "^4.2.0",
     "dayjs": "1.11.10",
     "lodash-es": "^4.17.21",
     "pinia": "2.0.36",

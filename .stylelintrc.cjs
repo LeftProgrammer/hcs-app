@@ -33,6 +33,12 @@ module.exports = {
         ignorePseudoClasses: ['global', 'export', 'v-deep', 'deep'],
       },
     ],
+    'selector-pseudo-element-no-unknown': [
+      true,
+      {
+        ignorePseudoElements: ['v-deep', 'deep'],
+      },
+    ],
     'unit-no-unknown': [
       true,
       {

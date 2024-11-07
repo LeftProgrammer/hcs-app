@@ -1,14 +1,18 @@
 // uno.config.ts
-
 import { defineConfig } from 'unocss'
 import transformerDirectives from '@unocss/transformer-directives'
 import { presetShades } from '@viarotel-org/unocss-preset-shades'
 import { presetUni } from '@uni-helper/unocss-preset-uni'
-import { primaryColor } from './src/configs/index'
+import path from 'node:path'
+import { loadEnv } from 'vite'
+
+// 获取环境变量的范例
+const env = loadEnv(process.env.NODE_ENV!, path.resolve(process.cwd(), 'env'))
+const { VITE_PRIMARY_COLOR } = env
 
 const presetMain = presetUni({ attributify: false })
 
-const presets = [presetMain, presetShades(primaryColor)]
+const presets = [presetMain, presetShades(VITE_PRIMARY_COLOR)]
 
 export default defineConfig({
   theme: {},

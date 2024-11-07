@@ -1,15 +1,115 @@
-// @import './iconfont.css';
+/* 导入其他样式 */
 @import './applet.css';
 
+/* 通用样式 */
 .test {
   // 可以通过 @apply 多个样式封装整体样式
   @apply mt-4 ml-4;
-
   padding-top: 4px;
-  color: red;
 }
 
+/* 全局样式 */
 :root,
 page {
   height: 100%;
+}
+
+/* uni-modal 样式 */
+::v-deep .uni-modal {
+  background-color: #000e2d;
+
+  .uni-modal__title {
+    color: #ffffff;
+  }
+  .uni-modal__btn_default {
+    color: #ffffff !important;
+  }
+  .uni-modal__btn_default:active {
+    color: #303133 !important;
+  }
+}
+
+/* modal 样式 */
+.modal {
+  ::v-deep .uv-popup__content {
+    background: #000e2d !important;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 194px;
+    height: 43px;
+    background-image: url('@/static/common/model-title.png');
+    color: #ffffff;
+    font-size: 20px;
+    margin-bottom: 40px;
+  }
+
+  .label-icon {
+    width: 8px;
+    height: 8px;
+    background-image: url('@/static/common/label-icon.png');
+    margin-right: 8px;
+  }
+
+  .label-text {
+    color: #ffffff;
+  }
+
+  /* uv-form 样式 */
+  ::v-deep .uv-form .uv-form-item .uv-form-item__body {
+    border-bottom: 1px solid #2e5ebf;
+  }
+
+  /* 去除最后一个 uv-form-item 的 border */
+  ::v-deep .uv-form .uv-form-item:last-child .uv-form-item__body {
+    border-bottom: none;
+  }
+
+  /* uv-form-item__body 样式 */
+  ::v-deep .uv-form-item__body {
+    background: #082665;
+    padding: 10px 14px !important;
+
+    .uv-form-item__body__left__content__label {
+      color: #ffffff;
+    }
+
+    .uni-input-input {
+      color: #ffffff;
+    }
+  }
+
+  /* uv-modal button group 样式 */
+  ::v-deep .uv-modal__button-group__wrapper--hover {
+    .uv-modal__button-group__wrapper__text {
+      color: #303133 !important;
+    }
+  }
+}
+
+/* action-sheet 样式 */
+.action-sheet {
+  ::v-deep .uv-action-sheet__header__title {
+    color: #ffffff !important;
+  }
+
+  ::v-deep .uv-action-sheet__item-wrap__item__name {
+    color: #ffffff !important;
+  }
+
+  ::v-deep .uv-action-sheet--hover {
+    .uv-action-sheet__item-wrap__item__name {
+      color: #303133 !important;
+    }
+  }
 }
