@@ -37,14 +37,17 @@ export const useUserStore = defineStore(
     }
 
     const logout = async () => {
-      const { code } = await userLogout()
-      if (code === 200) {
-        clearToken()
-        useToast('退出成功')
-        uni.navigateTo({ url: '/pages/login/index' })
-      } else {
-        useToast('退出失败')
-      }
+      clearToken()
+      useToast('退出成功')
+      uni.navigateTo({ url: '/pages/login/index' })
+      // const { code } = await userLogout()
+      // if (code === 200) {
+      //   clearToken()
+      //   useToast('退出成功')
+      //   uni.navigateTo({ url: '/pages/login/index' })
+      // } else {
+      //   useToast('退出失败')
+      // }
     }
     const isLogined = computed(() => !!userInfo.value.token)
 

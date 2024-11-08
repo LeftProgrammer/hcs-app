@@ -17,7 +17,7 @@
         labelPosition="left"
         :model="formData"
         :rules="rules"
-        ref="programmeForm"
+        ref="planForm"
         class="w-100 h-20"
       >
         <uv-form-item prop="name" @click="showProgrammeSelect">
@@ -43,10 +43,10 @@
 
     <uv-action-sheet
       class="action-sheet"
-      ref="programmeSelect"
-      :actions="programmes"
+      ref="planSelect"
+      :actions="plans"
       title="请选择方案"
-      @select="programmeSelectHandler"
+      @select="planSelectHandler"
     ></uv-action-sheet>
   </uv-modal>
 </template>
@@ -68,7 +68,7 @@ const formData = reactive({
   id: planObj.id || '',
 })
 
-const programmes = ref([
+const plans = ref([
   { name: '方案一', id: '1726133066786' },
   { name: '方案二', id: '1727250800901' },
   { name: '方案三', id: '1729838576104' },
@@ -83,15 +83,15 @@ const rules = ref({
   },
 })
 
-// 引用 modal、form 和 programmeSelect 组件实例
+// 引用 modal、form 和 planSelect 组件实例
 const modal = ref(null)
-const programmeForm = ref(null)
-const programmeSelect = ref(null)
+const planForm = ref(null)
+const planSelect = ref(null)
 
 const getDesignPlans = () => {
   getDesignPlan().then((res) => {
     if (res.code === 200) {
-      programmes.value = res.data.map((item) => ({
+      plans.value = res.data.map((item) => ({
         name: item.planName,
         id: item.id,
       }))
@@ -100,12 +100,12 @@ const getDesignPlans = () => {
 }
 
 const showProgrammeSelect = () => {
-  programmeSelect.value.open()
+  planSelect.value.open()
   uni.hideKeyboard()
 }
 
-const programmeSelectHandler = (e) => {
-  console.error('programmeSelect====>', e)
+const planSelectHandler = (e) => {
+  console.error('planSelect====>', e)
   formData.name = e.name
   formData.id = e.id
 }
@@ -119,7 +119,7 @@ const onCancel = () => {
 }
 
 const onConfirm = () => {
-  programmeForm.value
+  planForm.value
     .validate()
     .then(() => {
       commonStore.setPlanObj(JSON.parse(JSON.stringify(formData)))

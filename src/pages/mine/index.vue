@@ -44,7 +44,9 @@
             <view class="mr-3 label-icon"></view>
             <view class="">配置地址</view>
           </view>
-          <view class="flex-1 flex flex-justify-end items-center">{{ serviceAddress }}</view>
+          <view class="flex-1 flex flex-justify-end items-center">
+            {{ commonInfo.serviceAddress }}
+          </view>
         </view>
         <view class="flex justify-between items-center pb-5">
           <view class="flex items-center">
@@ -52,7 +54,7 @@
             <view class="">设计方案</view>
           </view>
           <view class="flex-1 flex flex-justify-end items-center" @click="openProgrammeModal">
-            <view class="mr-3">{{ planObj.name }}</view>
+            <view class="mr-3">{{ commonInfo?.planObj?.name }}</view>
             <uv-icon name="arrow-right" color="#ffffff" size="16"></uv-icon>
           </view>
         </view>
@@ -69,11 +71,7 @@
     <!-- <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button> -->
     <!-- </view> -->
 
-    <programmeModal
-      ref="programmeFormModal"
-      modalTitle="选择方案"
-      @confirm-success="handleConfirmSuccess"
-    />
+    <planModal ref="planFormModal" modalTitle="选择方案" @confirm-success="handleConfirmSuccess" />
 
     <uv-modal
       class="modal"
@@ -164,26 +162,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref } from 'vue'
 import { useUserStore, useCommonStore } from '@/store'
 import { useToast, useDialog } from '@/utils/modals'
 import { updatePwd } from '@/service/home'
 import CryptoJS from 'crypto-js'
-import programmeModal from '@/components/programmeModal/index.vue'
+import planModal from '@/components/planModal/index.vue'
 
 const userStore = useUserStore()
 const commonStore = useCommonStore()
 const userInfo = userStore.userInfo || {}
-const commonInfo = commonStore.commonInfo || {}
+const commonInfo = ref({})
 
 const appVersion = ref({
   current: '0.8.2',
   latest: '0.8.2',
 })
 
-const serviceAddress = commonInfo.serviceAddress || ''
-const planObj = commonInfo.planObj || {}
-const programmeFormModal = ref(null)
+const planFormModal = ref(null)
 
 const popupRef = ref(null)
 const passwordForm = ref(null)
@@ -227,10 +223,12 @@ const passwordRules = {
   },
 }
 
-onMounted(() => {})
+onShow(() => {
+  commonInfo.value = commonStore.commonInfo || {}
+})
 
 const openProgrammeModal = () => {
-  programmeFormModal.value.openModal()
+  planFormModal.value.openModal()
 }
 
 const handleConfirmSuccess = (formData) => {
@@ -245,7 +243,7 @@ const handleConfirmSuccess = (formData) => {
 }
 
 const completeSettings = () => {
-  if (!serviceAddress) {
+  if (!commonInfo.value.serviceAddress) {
     useToast('请先设置服务地址')
     uni.navigateTo({
       url: '/pages/login/index', // 跳转到H5页面
@@ -255,7 +253,7 @@ const completeSettings = () => {
     })
     return
   }
-  if (!planObj.id || !planObj.name) {
+  if (!commonInfo.value?.planObj.id || !commonInfo.value?.planObj.name) {
     useToast('请先设置方案')
     openProgrammeModal()
     return

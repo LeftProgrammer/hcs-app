@@ -86,11 +86,7 @@
       </view>
     </uv-modal>
 
-    <programmeModal
-      ref="programmeFormModal"
-      title="选择方案"
-      @confirm-success="handleConfirmSuccess"
-    />
+    <planModal ref="planFormModal" title="选择方案" @confirm-success="handleConfirmSuccess" />
   </view>
 </template>
 
@@ -102,12 +98,12 @@ import { useToast } from '@/utils/modals'
 import { currRoute } from '@/utils/index'
 import { cloneDeep } from 'lodash-es'
 import CryptoJS from 'crypto-js'
-import programmeModal from '@/components/programmeModal/index.vue'
+import planModal from '@/components/planModal/index.vue'
 
 const userStore = useUserStore()
 const commonStore = useCommonStore()
 const commonInfo = commonStore.commonInfo || {}
-const programmeFormModal = ref(null)
+const planFormModal = ref(null)
 const settingModal = ref(null)
 const settingForm = ref(null)
 const formRef = ref(null)
@@ -195,7 +191,7 @@ const handleLogin = async () => {
       useToast('请选择方案')
 
       // 弹出设置服务地址的弹窗
-      programmeFormModal.value.openModal()
+      planFormModal.value.openModal()
     } else {
       handleConfirmSuccess()
     }
