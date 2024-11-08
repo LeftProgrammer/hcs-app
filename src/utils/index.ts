@@ -60,7 +60,7 @@ export const getUrlObj = (url: string) => {
  * 这里设计得通用一点，可以传递key作为判断依据，默认是 needLogin, 与 route-block 配对使用
  * 如果没有传 key，则表示所有的pages，如果传递了 key, 则表示通过 key 过滤
  */
-export const getAllPages = (key = '') => {
+export const getAllPages = (key = 'needLogin') => {
   console.log('pages', pages)
   // 这里处理主包
   const mainPages = [
@@ -91,12 +91,6 @@ export const getAllPages = (key = '') => {
   console.log(`getAllPages by ${key} result: `, result)
   return result
 }
-
-/**
- * 得到所有的需要登录的pages，包括主包和分包的
- * 只得到 path 数组
- */
-export const getAllPagePaths = (): string[] => getAllPages().map((page) => page.path)
 
 /**
  * 得到所有的需要登录的pages，包括主包和分包的

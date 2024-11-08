@@ -4,12 +4,11 @@
  * 我这里应为大部分都可以随便进入，所以使用黑名单
  */
 import { useUserStore } from '@/store'
-import { getAllPagePaths, getNeedLoginPages, needLoginPages as _needLoginPages } from '@/utils'
+import { getNeedLoginPages, needLoginPages as _needLoginPages } from '@/utils'
 
 console.error('route')
 // TODO Check
 const loginRoute = '/pages/login/index'
-const mineRoute = '/pages/mine/index'
 
 const isLogined = () => {
   const userStore = useUserStore()
@@ -32,17 +31,6 @@ export const checkAndRedirect = (url?: string) => {
     }
   }
   const path = url.split('?')[0]
-  // 获取所有有效的页面路径
-  const allPagePaths = getAllPagePaths()
-  // 检查页面是否存在
-  const isPageExist = allPagePaths.includes(path)
-  if (!isPageExist) {
-    // 页面不存在，跳转到《mine》页面
-    uni.redirectTo({ url: mineRoute })
-    console.log('页面不存在，重定向到', mineRoute)
-    return false
-  }
-
   let needLoginPages: string[] = []
   if (isDev) {
     needLoginPages = getNeedLoginPages()
