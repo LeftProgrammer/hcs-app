@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { userLogout } from '@/service/home'
+import { useToast } from '@/utils/modals'
 
 // 初始状态
 const initState = {
@@ -12,15 +14,10 @@ const initState = {
 export const useUserStore = defineStore(
   'user',
   () => {
-    const userInfo = ref({ ...initState })
-    const token = ref('')
-    const encryptedPassword = ref('')
+    const userInfo: any = ref({ ...initState })
 
-    const setToken = (val) => {
-      token.value = val
-    }
     const clearToken = () => {
-      token.value = ''
+      userInfo.value.token = ''
     }
     const setUserInfo = (val) => {
       userInfo.value = val
@@ -28,32 +25,39 @@ export const useUserStore = defineStore(
     const clearUserInfo = () => {
       userInfo.value = { ...initState }
     }
-    const setEncryptedPassword = (val) => {
-      encryptedPassword.value = val
+    const setPassword = (val) => {
+      userInfo.value.password = val
     }
-    const clearEncryptedPassword = () => {
-      encryptedPassword.value = ''
+    const clearPassword = () => {
+      userInfo.value.password = ''
     }
     // 一般没有reset需求，不需要的可以删除
     const reset = () => {
       userInfo.value = { ...initState }
-      token.value = ''
-      encryptedPassword.value = ''
     }
-    const isLogined = computed(() => !!token.value)
+
+    const logout = async () => {
+      const { code } = await userLogout()
+      if (code === 200) {
+        clearToken()
+        useToast('退出成功')
+        uni.navigateTo({ url: '/pages/login/index' })
+      } else {
+        useToast('退出失败')
+      }
+    }
+    const isLogined = computed(() => !!userInfo.value.token)
 
     return {
-      token,
-      setToken,
-      clearToken,
       userInfo,
+      clearToken,
       setUserInfo,
       clearUserInfo,
-      encryptedPassword,
-      setEncryptedPassword,
-      clearEncryptedPassword,
-      isLogined,
+      setPassword,
+      clearPassword,
       reset,
+      logout,
+      isLogined,
     }
   },
   {

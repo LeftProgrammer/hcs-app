@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import qs from 'qs'
-import { useUserStore } from '@/store'
+import { useUserStore, useCommonStore } from '@/store'
 import { platform } from '@/utils/platform'
 import { checkAndRedirect } from '@/interceptors/route'
 
@@ -13,10 +13,10 @@ export type CustomRequestOptions = UniApp.RequestOptions & {
 // 请求基准地址
 
 const getDynamicRequestURL = () => {
-  const storedServiceAddress = uni.getStorageSync('serviceAddress') // 从本地存储获取 serviceAddress
-  console.error('getDynamicRequestURL', storedServiceAddress)
+  const serviceAddress = useCommonStore().commonInfo.serviceAddress // 从本地存储获取 serviceAddress
+  console.error('getDynamicRequestURL', serviceAddress)
   return (
-    `${storedServiceAddress}${import.meta.env.VITE_BASE_URL}` ||
+    `${serviceAddress}${import.meta.env.VITE_BASE_URL}` ||
     `${import.meta.env.VITE_SERVER_BASEURL}${import.meta.env.VITE_BASE_URL}`
   )
 }
@@ -52,15 +52,15 @@ const httpInterceptor = {
       // TIPS: 如果需要对接多个后端服务，也可以在这里处理，拼接成所需要的地址
     }
     // 1. 请求超时
-    options.timeout = 10000 // 10s
+    options.timeout = 20000 // 10s
     // 2. （可选）添加小程序端请求头标识
     options.header = {
       // platform, // TOTD: 涉及CORS（跨域资源共享），暂时先注释掉。  可选，与 uniapp 定义的平台一致，告诉后台来源
       ...options.header,
     }
     // 3. 添加 token 请求头标识
-    const userStore = useUserStore()
-    const token = userStore.token
+    const userInfo = useUserStore().userInfo || {}
+    const token = userInfo.token
     if (token) {
       // options.header['X-Access-Token'] = token
       options.header.Authorization = token

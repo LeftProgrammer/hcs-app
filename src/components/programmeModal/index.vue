@@ -20,15 +20,15 @@
         ref="programmeForm"
         class="w-100 h-20"
       >
-        <uv-form-item prop="programme" @click="showProgrammeSelect">
+        <uv-form-item prop="name" @click="showProgrammeSelect">
           <template v-slot:label>
-            <view class="flex flex-justify-start flex-items-center mr-4">
+            <view class="flex flex-justify-start flex-items-center mr-4 w-18">
               <view class="label-icon"></view>
               <view class="label-text">方案</view>
             </view>
           </template>
           <uv-input
-            v-model="formData.programme"
+            v-model="formData.name"
             disabled
             disabledColor="#082665"
             placeholder="请选择方案"
@@ -52,27 +52,30 @@
 </template>
 
 <script setup>
+import { useCommonStore } from '@/store'
 import { getDesignPlan } from '@/service/home/index'
 import { useToast } from '@/utils/modals'
 
 const emit = defineEmits(['confirm-success'])
 
+const commonStore = useCommonStore()
+
 const modalTitle = '选择方案'
-const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
+const planObj = commonStore.commonInfo.planObj || {}
 
 const formData = reactive({
-  programme: programmeObj.programme || '',
-  fileName: programmeObj.fileName || '',
+  name: planObj.name || '',
+  id: planObj.id || '',
 })
 
 const programmes = ref([
-  { name: '方案一', fileName: '1726133066786' },
-  { name: '方案二', fileName: '1727250800901' },
-  { name: '方案三', fileName: '1729838576104' },
+  { name: '方案一', id: '1726133066786' },
+  { name: '方案二', id: '1727250800901' },
+  { name: '方案三', id: '1729838576104' },
 ])
 
 const rules = ref({
-  programme: {
+  name: {
     type: 'string',
     required: true,
     message: '请选择方案',
@@ -90,7 +93,7 @@ const getDesignPlans = () => {
     if (res.code === 200) {
       programmes.value = res.data.map((item) => ({
         name: item.planName,
-        fileName: item.id,
+        id: item.id,
       }))
     }
   })
@@ -103,8 +106,8 @@ const showProgrammeSelect = () => {
 
 const programmeSelectHandler = (e) => {
   console.error('programmeSelect====>', e)
-  formData.programme = e.name
-  formData.fileName = e.fileName
+  formData.name = e.name
+  formData.id = e.id
 }
 
 const openModal = () => {
@@ -119,7 +122,7 @@ const onConfirm = () => {
   programmeForm.value
     .validate()
     .then(() => {
-      uni.setStorageSync('programmeObj', JSON.stringify(formData))
+      commonStore.setPlanObj(JSON.parse(JSON.stringify(formData)))
       useToast('设置成功')
       modal.value.close()
       emit('confirm-success', formData)

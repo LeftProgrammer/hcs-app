@@ -30,23 +30,31 @@
 </template>
 
 <script setup>
-const isLoading = ref(true)
-const serviceAddress = uni.getStorageSync('serviceAddress') || ''
-const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
-const src = ref('')
-const fileName = ref(programmeObj.fileName || 'page')
+import { useCommonStore } from '@/store'
+const commonInfo = useCommonStore().commonInfo || {}
 
+const isLoading = ref(true)
+const serviceAddress = commonInfo.serviceAddress || ''
+const planObj = commonInfo.planObj || {}
+const planId = planObj.id || 'page'
+const src = ref('')
 // const iframe = ref(null)
 
 // 页面加载时设置 `src`
 onLoad(() => {
   console.log('onShow-src.value===>', src.value)
-  src.value = `${serviceAddress}/hcs-design-h5/${fileName.value}/index.html`
+  if (!serviceAddress || !planId) {
+    uni.redirectTo({
+      url: '/pages/mine/index',
+    })
+    return
+  }
+  src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html`
   // src.value = 'http://192.168.70.68/hcs-design-h5/1727250800901/index.html'
   console.error('this.src===>', src.value)
-  // setTimeout(() => {
-  //   isLoading.value = false
-  // }, 2500)
+  setTimeout(() => {
+    isLoading.value = false
+  }, 2500)
 })
 
 // const onIframeLoad = () => {
@@ -81,9 +89,9 @@ onLoad(() => {
 //   } else if (action === 'openOtherPage') {
 //     isLoading.value = true
 //     if (params) {
-//       src.value = `${serviceAddress}/hcs-design-h5/${fileName.value}/index.html?${params}`
+//       src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?${params}`
 //     } else {
-//       src.value = `${serviceAddress}/hcs-design-h5/${fileName.value}/index.html`
+//       src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html`
 //     }
 //     setTimeout(() => {
 //       isLoading.value = false
@@ -111,9 +119,9 @@ const onMessageFromH5 = (event) => {
   } else if (action === 'openOtherPage') {
     isLoading.value = true // 开始加载动画
     if (params) {
-      src.value = `${serviceAddress}/hcs-design-h5/${fileName.value}/index.html?${params}`
+      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?${params}`
     } else {
-      src.value = `${serviceAddress}/hcs-design-h5/${fileName.value}/index.html`
+      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html`
     }
     setTimeout(() => {
       isLoading.value = false

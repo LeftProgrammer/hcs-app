@@ -17,3 +17,4 @@ export default store
 export * from './user'
 export * from './dict'
 export * from './network'
+export * from './common'

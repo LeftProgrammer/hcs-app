@@ -18,8 +18,8 @@ export default defineManifestConfig({
   name: VITE_APP_TITLE,
   appid: VITE_UNI_APPID,
   description: '',
-  versionName: '0.5.3',
-  versionCode: '053',
+  versionName: '0.8.2',
+  versionCode: '082',
   transformPx: false,
   locale: VITE_FALLBACK_LOCALE, // 'zh-Hans'
   h5: {

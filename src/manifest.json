@@ -2,8 +2,8 @@
   "name": "智慧展厅",
   "appid": "__UNI__F927A4D",
   "description": "",
-  "versionName": "0.5.3",
-  "versionCode": "053",
+  "versionName": "0.8.2",
+  "versionCode": "082",
   "transformPx": false,
   "app-plus": {
     "usingComponents": true,

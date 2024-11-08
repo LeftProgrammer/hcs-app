@@ -16,7 +16,7 @@
             <view class="mr-3 label-icon"></view>
             <view class="">账户</view>
           </view>
-          <view class="flex-1 flex flex-justify-end items-center">{{ user.nickname }}</view>
+          <view class="flex-1 flex flex-justify-end items-center">{{ userInfo.nickname }}</view>
         </view>
         <view class="flex justify-between items-center pb-5 mb-4 border-b-1 border-#2E5EBF">
           <view class="flex items-center">
@@ -52,7 +52,7 @@
             <view class="">设计方案</view>
           </view>
           <view class="flex-1 flex flex-justify-end items-center" @click="openProgrammeModal">
-            <view class="mr-3">{{ programmeObj.programme }}</view>
+            <view class="mr-3">{{ planObj.name }}</view>
             <uv-icon name="arrow-right" color="#ffffff" size="16"></uv-icon>
           </view>
         </view>
@@ -95,50 +95,67 @@
           labelWidth="106"
           class="w-100 h-48"
         >
-          <uv-form-item prop="oldpassword">
+          <uv-form-item prop="originalPwd">
             <template v-slot:label>
-              <view class="flex flex-justify-start flex-items-center mr-4">
+              <view class="flex flex-justify-start flex-items-center mr-4 w-18">
                 <view class="label-icon"></view>
-                <view class="label-text">原始密码</view>
+                <view class="label-text">旧密码</view>
               </view>
             </template>
             <uv-input
-              type="password"
-              placeholder="请输入原始密码"
-              v-model="passwordModel.oldpassword"
+              placeholder="请输入旧密码"
+              v-model="passwordModel.originalPwd"
               border="none"
               clearable
             ></uv-input>
           </uv-form-item>
-          <uv-form-item prop="password">
+          <uv-form-item prop="newPwd">
             <template v-slot:label>
-              <view class="flex flex-justify-start flex-items-center mr-4">
+              <view class="flex flex-justify-start flex-items-center mr-4 w-18">
                 <view class="label-icon"></view>
                 <view class="label-text">新密码</view>
               </view>
             </template>
             <uv-input
-              type="password"
+              :password="showPassword"
               placeholder="请输入新密码"
-              v-model="passwordModel.password"
+              v-model="passwordModel.newPwd"
               border="none"
               clearable
-            ></uv-input>
+            >
+              <template v-slot:suffix>
+                <uv-icon
+                  :name="showPassword ? 'eye-fill' : 'eye'"
+                  size="24"
+                  color="#ffffff"
+                  @click="showPassword = !showPassword"
+                ></uv-icon>
+              </template>
+            </uv-input>
           </uv-form-item>
           <uv-form-item prop="confirmpassword">
             <template v-slot:label>
-              <view class="flex flex-justify-start flex-items-center mr-4">
+              <view class="flex flex-justify-start flex-items-center mr-4 w-18">
                 <view class="label-icon"></view>
                 <view class="label-text">确认密码</view>
               </view>
             </template>
             <uv-input
-              type="password"
+              :password="showPassword"
               placeholder="请再次输入新密码"
               v-model="passwordModel.confirmpassword"
               border="none"
               clearable
-            ></uv-input>
+            >
+              <template v-slot:suffix>
+                <uv-icon
+                  :name="showPassword ? 'eye-fill' : 'eye'"
+                  size="24"
+                  color="#ffffff"
+                  @click="showPassword = !showPassword"
+                ></uv-icon>
+              </template>
+            </uv-input>
           </uv-form-item>
         </uv-form>
       </view>
@@ -148,38 +165,40 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useUserStore } from '@/store'
+import { useUserStore, useCommonStore } from '@/store'
 import { useToast, useDialog } from '@/utils/modals'
+import { updatePwd } from '@/service/home'
+import CryptoJS from 'crypto-js'
 import programmeModal from '@/components/programmeModal/index.vue'
 
 const userStore = useUserStore()
-
-const user = ref({
-  nickname: '',
-})
+const commonStore = useCommonStore()
+const userInfo = userStore.userInfo || {}
+const commonInfo = commonStore.commonInfo || {}
 
 const appVersion = ref({
-  current: '0.5.3',
-  latest: '0.5.3',
+  current: '0.8.2',
+  latest: '0.8.2',
 })
 
-const serviceAddress = uni.getStorageSync('serviceAddress') || ''
-const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
+const serviceAddress = commonInfo.serviceAddress || ''
+const planObj = commonInfo.planObj || {}
 const programmeFormModal = ref(null)
 
 const popupRef = ref(null)
 const passwordForm = ref(null)
+const showPassword = ref(true)
 const passwordModel = ref({
-  oldpassword: '',
-  password: '',
+  originalPwd: '',
+  newPwd: '',
   confirmpassword: '',
 })
 
 const passwordRules = {
-  oldpassword: [
-    { type: 'string', required: true, message: '请输入原始密码', trigger: ['blur', 'change'] },
+  originalPwd: [
+    { type: 'string', required: true, message: '请输入旧密码', trigger: ['blur', 'change'] },
   ],
-  password: [
+  newPwd: [
     {
       type: 'string',
       required: true,
@@ -197,9 +216,9 @@ const passwordRules = {
     required: true,
     trigger: ['blur', 'change'],
     validator: (rule, value, callback) => {
-      if (!value && passwordModel.value.password) {
+      if (!value && passwordModel.value.newPwd) {
         callback(new Error('请再次输入新密码'))
-      } else if (value !== passwordModel.value.password) {
+      } else if (value !== passwordModel.value.newPwd) {
         callback(new Error('两次密码输入不一致'))
       } else {
         callback()
@@ -208,13 +227,7 @@ const passwordRules = {
   },
 }
 
-onMounted(() => {
-  const userInfo = userStore.userInfo
-  console.log('userInfo', userInfo)
-  user.value = {
-    nickname: userInfo.nickname,
-  }
-})
+onMounted(() => {})
 
 const openProgrammeModal = () => {
   programmeFormModal.value.openModal()
@@ -242,7 +255,7 @@ const completeSettings = () => {
     })
     return
   }
-  if (!programmeObj.programme) {
+  if (!planObj.id || !planObj.name) {
     useToast('请先设置方案')
     openProgrammeModal()
     return
@@ -275,10 +288,7 @@ const handleLogout = async (isModal = true) => {
     })
     if (!confirmed) return
   }
-
-  userStore.clearToken()
-  useToast('退出成功')
-  uni.navigateTo({ url: '/pages/login/index' })
+  userStore.logout()
 }
 
 const checkForUpdate = async () => {
@@ -301,8 +311,8 @@ const openPasswordPopup = () => {
 
 const handleClose = () => {
   popupRef.value.close()
-  passwordModel.value.oldpassword = ''
-  passwordModel.value.password = ''
+  passwordModel.value.originalPwd = ''
+  passwordModel.value.newPwd = ''
   passwordModel.value.confirmpassword = ''
 }
 
@@ -310,17 +320,19 @@ const handleSure = () => {
   passwordForm.value
     .validate()
     .then(async () => {
-      passwordModel.value.username = user.value.username
+      const params = JSON.parse(JSON.stringify(passwordModel.value))
+      params.originalPwd = CryptoJS.MD5(passwordModel.value.originalPwd).toString()
+      params.newPwd = CryptoJS.MD5(passwordModel.value.newPwd).toString()
+      params.confirmpassword = CryptoJS.MD5(passwordModel.value.confirmpassword).toString()
       try {
-        const res = {}
-        // await updatePassword(passwordModel.value)
-        if (res.code === 200) {
+        const { code, message } = await updatePwd(params)
+        if (code === 200) {
           useToast('密码修改成功')
           handleClose()
-          uni.clearStorageSync()
+          userStore.clearPassword()
           userStore.logout()
         } else {
-          useToast(res.message)
+          useToast(message)
         }
       } catch {
         useToast('网络异常')

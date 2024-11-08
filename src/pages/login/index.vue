@@ -30,7 +30,6 @@
                 :name="showPassword ? 'eye-fill' : 'eye'"
                 size="24"
                 color="#ffffff"
-                :class="[!showPassword ? 'uni-eye-active' : '']"
                 @click="showPassword = !showPassword"
               ></uv-icon>
             </template>
@@ -71,7 +70,7 @@
         >
           <uv-form-item prop="serviceAddress">
             <template v-slot:label>
-              <view class="flex flex-justify-start flex-items-center mr-4">
+              <view class="flex flex-justify-start flex-items-center mr-4 w-18">
                 <view class="label-icon"></view>
                 <view class="label-text">服务地址</view>
               </view>
@@ -97,8 +96,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { login } from '@/service/home/index'
-import { useUserStore } from '@/store'
+import { userLogin } from '@/service/home/index'
+import { useUserStore, useCommonStore } from '@/store'
 import { useToast } from '@/utils/modals'
 import { currRoute } from '@/utils/index'
 import { cloneDeep } from 'lodash-es'
@@ -106,6 +105,8 @@ import CryptoJS from 'crypto-js'
 import programmeModal from '@/components/programmeModal/index.vue'
 
 const userStore = useUserStore()
+const commonStore = useCommonStore()
+const commonInfo = commonStore.commonInfo || {}
 const programmeFormModal = ref(null)
 const settingModal = ref(null)
 const settingForm = ref(null)
@@ -127,12 +128,12 @@ const rules = ref({
       message: '请输入密码',
       trigger: ['blur', 'change'],
     },
-    {
-      min: 8,
-      max: 16,
-      message: '密码由数字、字母和特殊符号组成，长度8-16位',
-      trigger: ['blur', 'change'],
-    },
+    // {
+    //   min: 8,
+    //   max: 16,
+    //   message: '密码由数字、字母和特殊符号组成，长度8-16位',
+    //   trigger: ['blur', 'change'],
+    // },
   ],
 })
 
@@ -162,7 +163,7 @@ const handleConfirmSuccess = (formData) => {
 }
 
 const handleLogin = async () => {
-  const serviceAddress = uni.getStorageSync('serviceAddress') || ''
+  const serviceAddress = commonInfo.serviceAddress
   if (!serviceAddress) {
     useToast('请先配置服务地址')
 
@@ -179,17 +180,18 @@ const handleLogin = async () => {
   const params = cloneDeep(form.value)
   params.password = CryptoJS.MD5(form.value.password).toString()
 
-  const { code, message, data } = await login(params)
+  const { code, message, data } = await userLogin(params)
 
   if (code === 200) {
     console.log('登录成功', data)
     const userInfo = data || {}
-    userStore.setToken(data.token)
-    userStore.setUserInfo(userInfo)
+    userStore.setUserInfo({
+      ...userInfo,
+    })
     handleSuccess()
 
-    const programmeObj = JSON.parse(uni.getStorageSync('programmeObj') || '{}')
-    if (!programmeObj.programme) {
+    const planObj = commonInfo.planObj || {}
+    if (!planObj.id || !planObj.name) {
       useToast('请选择方案')
 
       // 弹出设置服务地址的弹窗
@@ -204,14 +206,14 @@ const handleLogin = async () => {
 
 const handleSuccess = () => {
   if (rememberMe.value.length > 0) {
-    userStore.setEncryptedPassword(form.value.password)
+    userStore.setPassword(form.value.password)
   } else {
-    userStore.clearEncryptedPassword()
+    userStore.clearPassword()
   }
 }
 
 const settingFormData = ref({
-  serviceAddress: uni.getStorageSync('serviceAddress') || '',
+  serviceAddress: commonInfo.serviceAddress || '',
 })
 const settingRules = ref({
   serviceAddress: {
@@ -244,7 +246,7 @@ const onConfirm = () => {
   settingForm.value
     .validate()
     .then(() => {
-      uni.setStorageSync('serviceAddress', settingFormData.value.serviceAddress)
+      commonStore.setServiceAddress(settingFormData.value.serviceAddress)
       useToast('设置成功')
       settingModal.value.close()
     })
@@ -256,9 +258,9 @@ const onConfirm = () => {
 
 // 页面加载时读取缓存的账号密码
 onMounted(() => {
-  if (userStore.userInfo.username && userStore.encryptedPassword) {
-    form.value.username = userStore.userInfo.username
-    form.value.password = userStore.userInfo.password
+  form.value.username = userStore.userInfo.id
+  form.value.password = userStore.userInfo.password
+  if (userStore.userInfo.id && userStore.userInfo.password) {
     rememberMe.value.push(true)
   }
 })
