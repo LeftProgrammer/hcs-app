@@ -18,8 +18,8 @@ export default defineManifestConfig({
   name: VITE_APP_TITLE,
   appid: VITE_UNI_APPID,
   description: '',
-  versionName: '1.0.0',
-  versionCode: '100',
+  versionName: '0.5.3',
+  versionCode: '053',
   transformPx: false,
   locale: VITE_FALLBACK_LOCALE, // 'zh-Hans'
   h5: {
@@ -32,6 +32,7 @@ export default defineManifestConfig({
     usingComponents: true,
     nvueStyleCompiler: 'uni-app',
     compilerVersion: 3,
+    orientation: 'landscape',
     compatible: {
       ignoreVersion: true,
     },

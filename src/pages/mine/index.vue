@@ -58,7 +58,7 @@
         </view>
       </view>
 
-      <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button>
+      <!-- <uv-button type="primary" text="去首页" @click="completeSettings"></uv-button> -->
       <uv-button class="w-full" type="primary" @click="handleLogout">退出登录</uv-button>
     </view>
 
@@ -159,8 +159,8 @@ const user = ref({
 })
 
 const appVersion = ref({
-  current: '1.0.0',
-  latest: '1.0.0',
+  current: '0.5.3',
+  latest: '0.5.3',
 })
 
 const serviceAddress = uni.getStorageSync('serviceAddress') || ''

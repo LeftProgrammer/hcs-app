@@ -1,8 +1,8 @@
 {
   "name": "hcs-pad",
   "type": "commonjs",
-  "version": "1.0.0",
-  "description": "展厅中控系统",
+  "version": "0.5.3",
+  "description": "智慧展厅",
   "engines": {
     "node": ">=18",
     "pnpm": ">=7.30"
