@@ -168,6 +168,7 @@ import { useToast, useDialog } from '@/utils/modals'
 import { updatePwd } from '@/service/home'
 import CryptoJS from 'crypto-js'
 import planModal from '@/components/planModal/index.vue'
+import { set } from 'lodash-es'
 
 const userStore = useUserStore()
 const commonStore = useCommonStore()
@@ -198,14 +199,26 @@ const passwordRules = {
     {
       type: 'string',
       required: true,
-      message: '密码由数字、字母和特殊符号组成，长度8-16位',
+      min: 8,
+      max: 16,
+      message: '密码长度需在8到16位之间',
       trigger: ['blur', 'change'],
     },
     {
-      pattern: /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/,
-      message: '密码由数字、字母和特殊符号组成，长度8-16位',
+      validator: (rule, value, callback) => {
+        if (value === passwordModel.value.originalPwd) {
+          callback(new Error('新密码不能与旧密码相同'))
+        } else {
+          callback()
+        }
+      },
       trigger: ['blur', 'change'],
     },
+    // {
+    //   pattern: /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,16}$/,
+    //   message: '密码由数字、字母和特殊符号组成，长度8-16位',
+    //   trigger: ['blur', 'change'],
+    // },
   ],
   confirmpassword: {
     type: 'string',
@@ -315,6 +328,9 @@ const handleClose = () => {
 }
 
 const handleSure = () => {
+  setTimeout(() => {
+    popupRef.value.closeLoading()
+  }, 600)
   passwordForm.value
     .validate()
     .then(async () => {

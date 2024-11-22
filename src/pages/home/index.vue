@@ -49,7 +49,7 @@ onLoad(() => {
     })
     return
   }
-  src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html`
+  src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?time=${Date.now()}`
   // src.value = 'http://192.168.70.68/hcs-design-h5/1727250800901/index.html'
   console.error('this.src===>', src.value)
   setTimeout(() => {
@@ -119,9 +119,9 @@ const onMessageFromH5 = (event) => {
   } else if (action === 'openOtherPage') {
     isLoading.value = true // 开始加载动画
     if (params) {
-      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?${params}`
+      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?${params}&time=${Date.now()}`
     } else {
-      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html`
+      src.value = `${serviceAddress}/hcs-design-h5/${planId}/index.html?time=${Date.now()}`
     }
     setTimeout(() => {
       isLoading.value = false

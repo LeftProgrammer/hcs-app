@@ -8,6 +8,12 @@ onLaunch(() => {
 })
 onShow(() => {
   console.log('App onShow')
+  uni.getSystemInfo({
+    success: function (res) {
+      console.log('屏幕宽度：', res.windowWidth) // 屏幕宽度
+      console.log('屏幕高度：', res.windowHeight) // 屏幕高度
+    },
+  })
   checkAndRedirect()
 })
 onHide(() => {

@@ -39,7 +39,7 @@
           <uv-checkbox-group v-model="rememberMe" labelColor="#ffffff">
             <uv-checkbox label="记住密码" :name="true"></uv-checkbox>
           </uv-checkbox-group>
-          <view class="flex flex-items-center" @click="openSettingModal">
+          <view class="flex flex-items-center" @click="openServiceModal">
             配置地址
             <uv-icon name="arrow-right" size="16" color="#ffffff" class="ml-1"></uv-icon>
           </view>
@@ -50,12 +50,12 @@
 
     <uv-modal
       class="modal"
-      ref="settingModal"
+      ref="serviceModal"
       :width="600"
       :showCancelButton="true"
       :asyncClose="true"
-      @confirm="onConfirm"
-      @cancel="onCancel"
+      @confirm="onServiceConfirm"
+      @cancel="onServiceCancel"
       cancelColor="#ffffff"
     >
       <view class="modal-content">
@@ -63,9 +63,9 @@
         <uv-form
           labelWidth="106"
           labelPosition="left"
-          :model="settingFormData"
+          :model="serviceFormData"
           :rules="settingRules"
-          ref="settingForm"
+          ref="serviceForm"
           class="w-100 h-20"
         >
           <uv-form-item prop="serviceAddress">
@@ -76,7 +76,7 @@
               </view>
             </template>
             <uv-input
-              v-model="settingFormData.serviceAddress"
+              v-model="serviceFormData.serviceAddress"
               clearable
               placeholder="请填写服务地址"
               border="none"
@@ -104,8 +104,8 @@ const userStore = useUserStore()
 const commonStore = useCommonStore()
 const commonInfo = commonStore.commonInfo || {}
 const planFormModal = ref(null)
-const settingModal = ref(null)
-const settingForm = ref(null)
+const serviceModal = ref(null)
+const serviceForm = ref(null)
 const formRef = ref(null)
 const showPassword = ref(true)
 const form = ref({
@@ -164,7 +164,7 @@ const handleLogin = async () => {
     useToast('请先配置服务地址')
 
     // 弹出设置服务地址的弹窗
-    openSettingModal()
+    openServiceModal()
     return
   }
 
@@ -208,7 +208,7 @@ const handleSuccess = () => {
   }
 }
 
-const settingFormData = ref({
+const serviceFormData = ref({
   serviceAddress: commonInfo.serviceAddress || '',
 })
 const settingRules = ref({
@@ -230,25 +230,26 @@ const settingRules = ref({
   },
 })
 
-const openSettingModal = () => {
-  settingModal.value.open()
+const openServiceModal = () => {
+  serviceFormData.value.serviceAddress = commonInfo.serviceAddress || 'http://192.168.70.68'
+  serviceModal.value.open()
 }
 
-const onCancel = () => {
-  settingModal.value.close()
+const onServiceCancel = () => {
+  serviceModal.value.close()
 }
 
-const onConfirm = () => {
-  settingForm.value
+const onServiceConfirm = () => {
+  serviceForm.value
     .validate()
     .then(() => {
-      commonStore.setServiceAddress(settingFormData.value.serviceAddress)
+      commonStore.setServiceAddress(serviceFormData.value.serviceAddress)
       useToast('设置成功')
-      settingModal.value.close()
+      serviceModal.value.close()
     })
     .catch((errors) => {
       console.error('errors====>', errors)
-      settingModal.value.closeLoading()
+      serviceModal.value.closeLoading()
     })
 }
 

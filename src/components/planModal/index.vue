@@ -111,6 +111,7 @@ const planSelectHandler = (e) => {
 }
 
 const openModal = () => {
+  getDesignPlans()
   modal.value.open()
 }
 
@@ -137,6 +138,6 @@ defineExpose({
 })
 // 在挂载时获取方案
 onMounted(() => {
-  getDesignPlans()
+  // getDesignPlans()
 })
 </script>
