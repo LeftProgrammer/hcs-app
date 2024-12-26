@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://github.com/codercup/unibest" target="_blank">hcs-app - 展厅控制端</a>
+  hcs-app - 展厅控制端
 </h1>
 
 ## ⚙️ 环境
