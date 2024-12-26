@@ -1,18 +1,6 @@
-<p align="center">
-  <a href="https://github.com/codercup/unibest">
-    <img width="160" src="./src/static/logo.svg">
-  </a>
-</p>
-
 <h1 align="center">
   <a href="https://github.com/codercup/unibest" target="_blank">hcs-app - 展厅控制端</a>
 </h1>
-
-<p align="center">
-  <a href="https://codercup.github.io/unibest-docs/" target="_blank">📖 文档地址</a>
-  <span style="margin:0 10px;">|</span>
-  <a href="https://codercup.github.io/hello-unibest/" target="_blank">📱 DEMO 地址</a>
-</p>
 
 ## ⚙️ 环境
 
